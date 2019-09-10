@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 
 const ItemSchema = new mongoose.Schema({
-    id: {
+    steamId: {
         type: Number,
         required: true,
         index: true,
+    },
+
+    name: {
+        type: String,
+        required: true,
     },
 });
 
