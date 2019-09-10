@@ -12,6 +12,11 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/clear', async (req, res) => {
+    await Item.remove({});
+    res.send(200);
+});
+
 router.get('/check', async (req, res) => {
     const { itemId } = req.body;
 
