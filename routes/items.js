@@ -51,14 +51,14 @@ router.delete('/', async (req, res) => {
     console.log(itemId)
 
     try {
-        const item = await Item.find({ steamId: itemId });
+        const item = await Item.findOneAndDelete({ steamId: itemId });
 
-        if (item) {
-            await item.remove();
+        // if (item) {
+            // await item.remove();
             res.status(200).json({ isBookmarked: false });
-        } else {
-            res.status(404).json({ error: 'No item' });
-        }
+        // } else {
+        //     res.status(404).json({ error: 'No item' });
+        // }
     } catch (error) {
         console.log(error);
 
