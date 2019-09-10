@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 
 router.get('/clear', async (req, res) => {
     await Item.remove({});
-    res.send(200);
+    res.sendStatus(200);
 });
 
 router.get('/check', async (req, res) => {
@@ -22,7 +22,7 @@ router.get('/check', async (req, res) => {
 
     try {
         const item = await Item.find({ steamId: itemId });
-        res.sendStatus(200).json({ isBookmarked: !!item });
+        res.status(200).json({ isBookmarked: !!item });
     } catch (error) {
         res.sendStatus(500);
     }
@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
         const item = new Item({ steamId, itemName });
         await item.save();
 
-        res.sendStatus(200).json({ isBookmarked: true });
+        res.status(200).json({ isBookmarked: true });
     } catch (error) {
         console.log(error);
 
@@ -55,9 +55,9 @@ router.delete('/', async (req, res) => {
 
         if (item) {
             await item.delete();
-            res.sendStatus(200).json({ isBookmarked: false });
+            res.status(200).json({ isBookmarked: false });
         } else {
-            res.sendStatus(404).json({ error: 'No item' });
+            res.status(404).json({ error: 'No item' });
         }
     } catch (error) {
         res.sendStatus(500);
