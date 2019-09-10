@@ -7,7 +7,7 @@ const ItemSchema = new mongoose.Schema({
         index: true,
     },
 
-    name: {
+    itemName: {
         type: String,
         required: true,
     },
