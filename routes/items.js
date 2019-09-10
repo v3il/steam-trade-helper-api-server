@@ -39,6 +39,8 @@ router.post('/', async (req, res) => {
 
         res.sendStatus(200).json({ isBookmarked: true });
     } catch (error) {
+        console.log(error);
+
         res.sendStatus(500);
     }
 });
