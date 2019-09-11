@@ -3,6 +3,10 @@ var router = express.Router();
 
 const Item = require('../models/Item');
 
+
+console.log('Git hooks test');
+
+
 router.get('/', async (req, res) => {
     try {
         const items = await Item.find({});
