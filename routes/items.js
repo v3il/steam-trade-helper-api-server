@@ -24,6 +24,8 @@ router.get('/clear', async (req, res) => {
 router.get('/check', async (req, res) => {
     const { itemId } = req.body;
 
+    console.log(itemId)
+
     try {
         const item = await Item.findOne({ steamId: itemId });
         res.status(200).json({ isBookmarked: !!item });
