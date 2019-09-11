@@ -24,7 +24,7 @@ module.exports = {
       ref  : 'origin/master',
       repo : 'https://github.com/v3il/steam-trade-helper-api-server.git',
       path : '/var/www/steam-trade-helper-api-server',
-      'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production'
+      'post-deploy' : 'pm2 reload ecosystem.config.js --env production'
     }
   }
 };
