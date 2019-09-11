@@ -4,7 +4,7 @@ var router = express.Router();
 const Item = require('../models/Item');
 
 
-console.log('Git hooks test2');
+console.log('Git hooks test3');
 
 
 router.get('/', async (req, res) => {
