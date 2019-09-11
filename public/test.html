@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
+
+<script>
+    const API_URL = 'http://localhost:3000/items/';
+
+    (async () => {
+        // create
+        const rs = await axios.post(API_URL, {
+            itemId: 1,
+            itemName: 'Test',
+        });
+
+        console.log(rs.data)
+
+        // get
+        const items = await axios.get(API_URL);
+        console.log(items.data);
+
+        // check
+        const check = await axios.post(`${API_URL}check`, {
+            itemId: 1
+        });
+        console.log(check.data);
+
+        // remove
+        const s = await axios.delete(API_URL, { data: {itemId: 1} });
+        console.log(s.data)
+    })();
+</script>
+
+</body>
+</html>

@@ -21,10 +21,10 @@ router.get('/clear', async (req, res) => {
     res.sendStatus(200);
 });
 
-router.get('/check', async (req, res) => {
+router.post('/check', async (req, res) => {
     const { itemId } = req.body;
 
-    console.log(itemId)
+    console.log('Check', itemId, req.body)
 
     try {
         const item = await Item.findOne({ steamId: itemId });

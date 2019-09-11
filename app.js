@@ -13,6 +13,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.set('views', __dirname + '/views');
 
 app.use('/', indexRouter);
 app.use('/items/', itemsRouter);
