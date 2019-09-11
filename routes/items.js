@@ -25,9 +25,11 @@ router.get('/check', async (req, res) => {
     const { itemId } = req.body;
 
     try {
-        const item = await Item.find({ steamId: itemId });
+        const item = await Item.findOne({ steamId: itemId });
         res.status(200).json({ isBookmarked: !!item });
     } catch (error) {
+        console.log(error);
+
         res.sendStatus(500);
     }
 });
