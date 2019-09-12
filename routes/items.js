@@ -16,13 +16,29 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/find', async (req, res) => {
+    const { itemName } = req.query;
+
+    try {
+        const item = await Item.find({ itemName });
+
+        if (item) {
+            res.json(item);
+        } else {
+            res.sendStatus(404);
+        }
+    } catch (error) {
+        res.sendStatus(500);
+    }
+});
+
 router.get('/clear', async (req, res) => {
     await Item.remove({});
     res.sendStatus(200);
 });
 
-router.post('/check', async (req, res) => {
-    const { itemId } = req.body;
+router.get('/check', async (req, res) => {
+    const { itemId } = req.query;
 
     console.log('Check', itemId, req.body)
 

@@ -25,10 +25,16 @@
         console.log(items.data);
 
         // check
-        const check = await axios.post(`${API_URL}check`, {
-            itemId: 1
+        const check = await axios.get(`${API_URL}check`, {
+            params: { itemId: 1 },
         });
         console.log(check.data);
+
+        // find
+        const item = await axios.get(`${API_URL}find`, {
+            params: { itemName: 'Test' }
+        });
+        console.log(item.data);
 
         // remove
         const s = await axios.delete(API_URL, { data: {itemId: 1} });
