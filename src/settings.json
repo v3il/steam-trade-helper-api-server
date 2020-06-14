@@ -1,0 +1,7 @@
+{
+  "autoReloadItemsData": true,
+  "minRequiredProfit": 15,
+  "notifyOnPrice": 10,
+  "refreshInterval": 4,
+  "showNotifications": true
+}
