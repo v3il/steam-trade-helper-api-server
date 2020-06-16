@@ -5,8 +5,14 @@ const path = require('path');
 const router = express.Router();
 
 router.get('/', async (request, response) => {
-    const settings = require('../settings.json');
-    response.json(settings);
+    const settings = await fsp.readFile(path.join(__dirname, '../settings.json'));
+
+    try {
+        const parsedSettings = JSON.parse(settings.toString());
+        response.json(parsedSettings);
+    } catch(e) {
+        response.json({});
+    }
 });
 
 router.post('/', async (request, response) => {
