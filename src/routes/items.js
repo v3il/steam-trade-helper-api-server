@@ -5,31 +5,15 @@ const TABLE_NAME = 'steam_items';
 
 const router = express.Router();
 
-const mapItem = (item) => ({
-    steamId: item.steam_id,
-    itemName: item.item_name,
-    watch: item.watch === 1,
-});
-
 router.get('/', async (request, response) => {
     const items = await knexInstance(TABLE_NAME).select();
-    const itemsMap = items.map(mapItem);
-
-    console.log(items);
+    const itemsMap = items.map((item) => ({
+        steamId: item.steam_id,
+        itemName: item.item_name,
+        watch: item.watch === 1,
+    }));
 
     response.json(itemsMap);
-});
-
-router.get('/find', async (request, response) => {
-    const { itemName } = request.query;
-
-    const items = await knexInstance(TABLE_NAME).where({ item_name: itemName }).select();
-
-    if (!items.length) {
-        throw new Error('Item not found');
-    }
-
-    response.json(mapItem(items[0]));
 });
 
 router.get('/check', async (request, response) => {
@@ -39,12 +23,23 @@ router.get('/check', async (request, response) => {
     response.json({ isBookmarked: items.length > 0 });
 });
 
+router.post('/set_watch_status', async (request, response) => {
+    const { itemId, watchStatus } = request.body;
+
+    await knexInstance(TABLE_NAME).where({ steam_id: itemId }).update({
+        watch: watchStatus ? 1 : 0,
+    });
+
+    response.json({ updated: true });
+});
+
 router.post('/', async (request, response) => {
     const { itemId, itemName } = request.body;
 
     await knexInstance(TABLE_NAME).insert({
         steam_id: itemId,
         item_name: itemName,
+        watch: true,
     });
 
     response.json({ isBookmarked: true });
