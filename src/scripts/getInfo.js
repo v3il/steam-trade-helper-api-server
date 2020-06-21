@@ -2,10 +2,17 @@ const axios = require('axios');
 
 const CasesService = require('../services/Cases');
 
-const updateCaseData = async (caseData) => {
-    console.log(caseData);
+const formatNumber = (number) => number < 10 ? `0${number}` : number;
 
+const updateCaseData = async (caseData) => {
     const { stat_data: statData, case_name: caseName } = caseData;
+
+    const date = new Date();
+    const statDate = `${formatNumber(date.getDate())}.${formatNumber(date.getMonth() + 1)}`;
+
+    console.log(statDate);
+
+    return
 
     try {
         // const stat = JSON.parse(statData);
