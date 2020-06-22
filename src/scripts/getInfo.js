@@ -7,10 +7,22 @@ const formatNumber = (number) => number < 10 ? `0${number}` : number;
 const updateCaseData = async (caseData) => {
     const { stat_data: statData, case_name: caseName } = caseData;
 
+    const parsedStat = JSON.parse(statData);
+
     const date = new Date();
     const statDate = `${formatNumber(date.getDate())}.${formatNumber(date.getMonth() + 1)}`;
 
-    console.log(statDate);
+    let statForCurrentDay = parsedStat.find(stat => stat.date === statDate);
+
+    if (!statForCurrentDay) {
+        statForCurrentDay = {
+            date: statDate,
+            averagePrice: 0,
+            soldCases: 0,
+        }
+    }
+
+    console.log(statForCurrentDay)
 
     return
 
@@ -48,7 +60,7 @@ const a = async () => {
     console.log(cases);
 
     await updateCaseData({
-        stat_data: [],
+        stat_data: '[]',
         case_name: 'Glove Case',
     });
 
