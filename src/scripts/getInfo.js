@@ -5,7 +5,7 @@ const CasesService = require('../services/Cases');
 const formatNumber = (number) => number < 10 ? `0${number}` : number;
 
 const updateCaseData = async (caseData) => {
-    const { stat_data: statData, case_name: caseName } = caseData;
+    const { stat_data: statData, id } = caseData;
 
     const parsedStat = JSON.parse(statData);
 
@@ -17,29 +17,58 @@ const updateCaseData = async (caseData) => {
     if (!statForCurrentDay) {
         statForCurrentDay = {
             date: statDate,
-            averagePrice: 0,
-            soldCases: 0,
+            sellPrice: 0,
+            buyPrice: 0,
+        };
+
+        parsedStat.push(statForCurrentDay);
+
+        if (parsedStat.length > 5) {
+            parsedStat.shift();
         }
     }
 
-    console.log(statForCurrentDay)
-
-    return
-
     try {
-        // const stat = JSON.parse(statData);
-
-        const response = await axios.get('https://steamcommunity.com/market/priceoverview', {
+        const response = await axios.get('https://steamcommunity.com/market/itemordershistogram', {
             params: {
-                appid: 730,
+                item_nameid: 176096390,
                 country: 'UA',
+                language: 'russian',
                 currency: 18,
-                market_hash_name: caseName,
+                two_factor: 0,
             }
         });
 
-        console.log(response.data);
+        if (!response.data.success) {
+            return;
+        }
 
+        const { sell_order_graph: sellData, buy_order_graph: buyData } = response.data;
+
+        const avgSellData = sellData.slice(0, 20).reduce((total, current) => {
+            const [price, volume] = current;
+
+            total.totalPrice += price * volume;
+            total.totalVolume += volume;
+
+            return total;
+        }, { totalPrice: 0, totalVolume: 0 });
+
+        const avgBuyData = buyData.slice(0, 20).reduce((total, current) => {
+            const [price, volume] = current;
+
+            total.totalPrice += price * volume;
+            total.totalVolume += volume;
+
+            return total;
+        }, { totalPrice: 0, totalVolume: 0 });
+
+        statForCurrentDay.sellPrice = avgSellData.totalPrice / avgSellData.totalVolume;
+        statForCurrentDay.buyPrice = avgBuyData.totalPrice / avgBuyData.totalVolume;
+
+        await CasesService.update({ id }, {
+            stat_data: JSON.stringify(parsedStat),
+        });
     } catch (error) {
         if (error.response) {
         	if (error.response.status === 429) {
@@ -55,14 +84,15 @@ const updateCaseData = async (caseData) => {
 };
 
 const a = async () => {
+    // await CasesService.create(176096390, 'Кейс «Расколотая сеть»');
+
     const cases = await CasesService.getAll();
 
     console.log(cases);
 
-    await updateCaseData({
-        stat_data: '[]',
-        case_name: 'Glove Case',
-    });
+    await updateCaseData(cases[0]);
+
+    process.exit(0);
 
     // setInterval(() => {
     //     updateCaseData();

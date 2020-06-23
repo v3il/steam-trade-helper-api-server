@@ -1,7 +1,8 @@
 exports.up = function(knex) {
     return knex.schema.createTable('cases', table => {
         table.increments('id');
-        table.string('case_name').notNullable();
+        table.integer('case_steam_id').notNullable();
+        table.string('case_steam_name').notNullable();
         table.text('stat_data').notNullable();
     });
 };
