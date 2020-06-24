@@ -15,5 +15,6 @@ module.exports = {
     DB_NAME: process.env.DB_NAME || 'steam_trade_helper',
 
     MAX_STAT_PERIOD: 14,
-    AVG_PRICE_SELECTION_LENGTH: 20
+    AVG_PRICE_SELECTION_LENGTH: 20,
+    UPDATE_INFO_DELAY: 15 * 1000,
 };

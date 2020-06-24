@@ -66,22 +66,26 @@ const updateCaseData = async (caseData) => {
     }
 };
 
-const a = async () => {
-    // await CasesService.create(176096390, 'Кейс «Расколотая сеть»');
+const start = async () => {
+    let currentCaseIndex = 0;
 
-    const cases = await CasesService.getAll();
+    const intervalId = setInterval(async () => {
+        const cases = await CasesService.getAll();
 
-    console.log(cases);
+        if (!cases.length) {
+            return clearInterval(intervalId);
+        }
 
-    await updateCaseData(cases[0]);
+        currentCaseIndex++;
 
-    process.exit(0);
+        if (currentCaseIndex >= cases.length) {
+            currentCaseIndex = 0;
+        }
 
-    // setInterval(() => {
-    //     updateCaseData();
-    // }, 15 * 1000);
+        await updateCaseData(cases[currentCaseIndex]);
+    }, config.UPDATE_INFO_DELAY);
 };
 
-a();
+start();
 
-// module.exports =
+module.exports = start();
