@@ -1,12 +1,15 @@
 const axios = require('axios');
+const { promisify } = require('util');
+const crypto = require('crypto');
 
 const CasesService = require('../services/Cases');
 const config = require("../config");
-
 const { getAvgPrice, formatNumber } = require('../util');
 
+const promisifiedSetTimeout = promisify(setTimeout);
+
 const updateCaseData = async (caseData) => {
-    const { stat_data: statData, case_steam_id: caseSteamId, id } = caseData;
+    const { id, stat_data: statData, case_steam_id: caseSteamId, case_steam_name: caseSteamName } = caseData;
 
     const parsedStat = JSON.parse(statData);
 
@@ -66,26 +69,24 @@ const updateCaseData = async (caseData) => {
     }
 };
 
+const updateItemsData = async () => {
+    const cases = await CasesService.getAll();
+
+    for (const caseData of cases) {
+        await updateCaseData(caseData);
+        await promisifiedSetTimeout(config.UPDATE_INFO_DELAY);
+    }
+
+    await promisifiedSetTimeout(config.UPDATE_INFO_DELAY);
+    await updateItemsData();
+}
+
 const start = async () => {
-    let currentCaseIndex = 0;
+    console.log(crypto.createHash('sha256').update('stha-user-1').digest('hex'));
 
-    const intervalId = setInterval(async () => {
-        const cases = await CasesService.getAll();
-
-        if (!cases.length) {
-            return clearInterval(intervalId);
-        }
-
-        currentCaseIndex++;
-
-        if (currentCaseIndex >= cases.length) {
-            currentCaseIndex = 0;
-        }
-
-        await updateCaseData(cases[currentCaseIndex]);
-    }, config.UPDATE_INFO_DELAY);
+    await updateItemsData();
 };
 
 start();
 
-module.exports = start();
+module.exports = start;

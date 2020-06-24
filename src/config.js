@@ -14,6 +14,8 @@ module.exports = {
     DB_PASSWORD: process.env.DB_PASSWORD || 'root',
     DB_NAME: process.env.DB_NAME || 'steam_trade_helper',
 
+    PASSWORD_SECRET: process.env.PASSWORD_SECRET || 'Some secret phrase',
+
     MAX_STAT_PERIOD: 14,
     AVG_PRICE_SELECTION_LENGTH: 20,
     UPDATE_INFO_DELAY: 15 * 1000,
