@@ -13,4 +13,7 @@ module.exports = {
     DB_USER: process.env.DB_USER || 'root',
     DB_PASSWORD: process.env.DB_PASSWORD || 'root',
     DB_NAME: process.env.DB_NAME || 'steam_trade_helper',
+
+    MAX_STAT_PERIOD: 14,
+    AVG_PRICE_SELECTION_LENGTH: 20
 };

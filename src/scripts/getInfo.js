@@ -1,11 +1,12 @@
 const axios = require('axios');
 
 const CasesService = require('../services/Cases');
+const config = require("../config");
 
-const formatNumber = (number) => number < 10 ? `0${number}` : number;
+const { getAvgPrice, formatNumber } = require('../util');
 
 const updateCaseData = async (caseData) => {
-    const { stat_data: statData, id } = caseData;
+    const { stat_data: statData, case_steam_id: caseSteamId, id } = caseData;
 
     const parsedStat = JSON.parse(statData);
 
@@ -23,7 +24,7 @@ const updateCaseData = async (caseData) => {
 
         parsedStat.push(statForCurrentDay);
 
-        if (parsedStat.length > 5) {
+        if (parsedStat.length > config.MAX_STAT_PERIOD) {
             parsedStat.shift();
         }
     }
@@ -31,7 +32,7 @@ const updateCaseData = async (caseData) => {
     try {
         const response = await axios.get('https://steamcommunity.com/market/itemordershistogram', {
             params: {
-                item_nameid: 176096390,
+                item_nameid: caseSteamId,
                 country: 'UA',
                 language: 'russian',
                 currency: 18,
@@ -45,26 +46,8 @@ const updateCaseData = async (caseData) => {
 
         const { sell_order_graph: sellData, buy_order_graph: buyData } = response.data;
 
-        const avgSellData = sellData.slice(0, 20).reduce((total, current) => {
-            const [price, volume] = current;
-
-            total.totalPrice += price * volume;
-            total.totalVolume += volume;
-
-            return total;
-        }, { totalPrice: 0, totalVolume: 0 });
-
-        const avgBuyData = buyData.slice(0, 20).reduce((total, current) => {
-            const [price, volume] = current;
-
-            total.totalPrice += price * volume;
-            total.totalVolume += volume;
-
-            return total;
-        }, { totalPrice: 0, totalVolume: 0 });
-
-        statForCurrentDay.sellPrice = avgSellData.totalPrice / avgSellData.totalVolume;
-        statForCurrentDay.buyPrice = avgBuyData.totalPrice / avgBuyData.totalVolume;
+        statForCurrentDay.sellPrice = getAvgPrice(sellData);
+        statForCurrentDay.buyPrice = getAvgPrice(buyData);
 
         await CasesService.update({ id }, {
             stat_data: JSON.stringify(parsedStat),
