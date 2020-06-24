@@ -82,8 +82,6 @@ const updateItemsData = async () => {
 }
 
 const start = async () => {
-    console.log(crypto.createHash('sha256').update('stha-user-1').digest('hex'));
-
     await updateItemsData();
 };
 
