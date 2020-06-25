@@ -1,6 +1,5 @@
 const axios = require('axios');
 const { promisify } = require('util');
-const crypto = require('crypto');
 
 const CasesService = require('../services/Cases');
 const config = require("../config");
@@ -10,6 +9,8 @@ const promisifiedSetTimeout = promisify(setTimeout);
 
 const updateCaseData = async (caseData) => {
     const { id, stat_data: statData, case_steam_id: caseSteamId, case_steam_name: caseSteamName } = caseData;
+
+    console.log(`Обновляем данные кейса "${caseSteamName}"`);
 
     const parsedStat = JSON.parse(statData);
 
@@ -81,10 +82,8 @@ const updateItemsData = async () => {
     await updateItemsData();
 }
 
-const start = async () => {
-    await updateItemsData();
+module.exports = () => {
+    setTimeout(async () => {
+        await updateItemsData();
+    }, config.UPDATE_INFO_DELAY);
 };
-
-start();
-
-module.exports = start;
