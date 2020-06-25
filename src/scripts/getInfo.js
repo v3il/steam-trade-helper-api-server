@@ -1,16 +1,16 @@
 const axios = require('axios');
 const { promisify } = require('util');
 
-const CasesService = require('../services/Cases');
+const DynamicItems = require('../services/DynamicItems');
 const config = require("../config");
-const { getAvgPrice, formatNumber } = require('../util');
+const { formatNumber } = require('../util');
 
 const promisifiedSetTimeout = promisify(setTimeout);
 
-const updateCaseData = async (caseData) => {
-    const { id, stat_data: statData, case_steam_id: caseSteamId, case_steam_name: caseSteamName } = caseData;
+const updateItemData = async (itemData) => {
+    const { id, stat_data: statData, item_steam_id: itemSteamId, item_steam_name: itemSteamName } = itemData;
 
-    console.log(`Обновляем данные кейса "${caseSteamName}"`);
+    console.log(`Обновляем данные предмета "${itemSteamName}"`);
 
     const parsedStat = JSON.parse(statData);
 
@@ -22,8 +22,10 @@ const updateCaseData = async (caseData) => {
     if (!statForCurrentDay) {
         statForCurrentDay = {
             date: statDate,
-            sellPrice: 0,
-            buyPrice: 0,
+            totalSellPrice: 0,
+            totalSellPriceUpdates: 0,
+            totalBuyPrice: 0,
+            totalBuyPriceUpdates: 0,
         };
 
         parsedStat.push(statForCurrentDay);
@@ -36,7 +38,7 @@ const updateCaseData = async (caseData) => {
     try {
         const response = await axios.get('https://steamcommunity.com/market/itemordershistogram', {
             params: {
-                item_nameid: caseSteamId,
+                item_nameid: itemSteamId,
                 country: 'UA',
                 language: 'russian',
                 currency: 18,
@@ -50,10 +52,21 @@ const updateCaseData = async (caseData) => {
 
         const { sell_order_graph: sellData, buy_order_graph: buyData } = response.data;
 
-        statForCurrentDay.sellPrice = getAvgPrice(sellData);
-        statForCurrentDay.buyPrice = getAvgPrice(buyData);
+        const firstSellData = sellData[0]; // [price, volume, text]
 
-        await CasesService.update({ id }, {
+        if (firstSellData) {
+            statForCurrentDay.totalSellPrice += firstSellData[0];
+            statForCurrentDay.totalSellPriceUpdates++;
+        }
+
+        const firstBuyData = buyData[0]; // [price, volume, text]
+
+        if (firstBuyData) {
+            statForCurrentDay.totalBuyPrice += firstBuyData[0];
+            statForCurrentDay.totalBuyPriceUpdates++;
+        }
+
+        await DynamicItems.update({ id }, {
             stat_data: JSON.stringify(parsedStat),
         });
     } catch (error) {
@@ -71,10 +84,10 @@ const updateCaseData = async (caseData) => {
 };
 
 const updateItemsData = async () => {
-    const cases = await CasesService.getAll();
+    const items = await DynamicItems.getAll();
 
-    for (const caseData of cases) {
-        await updateCaseData(caseData);
+    for (const itemData of items) {
+        await updateItemData(itemData);
         await promisifiedSetTimeout(config.UPDATE_INFO_DELAY);
     }
 

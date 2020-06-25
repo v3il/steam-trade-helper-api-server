@@ -1,6 +1,6 @@
 const knexInstance = require('../knexInstance');
 
-const TABLE_NAME = 'cases';
+const TABLE_NAME = 'dynamic_items';
 
 module.exports = {
     async getAll() {
@@ -9,9 +9,9 @@ module.exports = {
 
     async create(caseSteamId, caseSteamName, caseSteamNameEn) {
         await knexInstance(TABLE_NAME).insert({
-            case_steam_id: caseSteamId,
-            case_steam_name: caseSteamName,
-            case_steam_name_en: caseSteamNameEn,
+            item_steam_id: caseSteamId,
+            item_steam_name: caseSteamName,
+            item_steam_name_en: caseSteamNameEn,
             stat_data: JSON.stringify([]),
         });
     },

@@ -1,10 +1,10 @@
 const express = require('express');
-const CasesService = require('../services/Cases');
+const DynamicItems = require('../services/DynamicItems');
 
 const router = express.Router();
 
 router.get('/', async (request, response) => {
-    const cases = await CasesService.getAll();
+    const cases = await DynamicItems.getAll();
 
     const parsedCasesData = cases.map((caseData) => {
         const periodsData = JSON.parse(caseData.stat_data);
@@ -12,21 +12,30 @@ router.get('/', async (request, response) => {
         const parsedStatData = periodsData.map((periodData, index) => {
             const prevPeriodData = periodsData[index - 1];
 
+            const currentPeriodSellAvg = periodData.totalSellPrice / periodData.totalSellPriceUpdates;
+            const currentPeriodBuyAvg = periodData.totalBuyPrice / periodData.totalBuyPriceUpdates;
+
+            periodData.sellPriceAvg = currentPeriodSellAvg;
+            periodData.buyPriceAvg = currentPeriodBuyAvg;
+
             if (!prevPeriodData) {
                 return periodData;
             }
 
-            periodData.prevPeriodSellPriceDiff = periodData.sellPrice - prevPeriodData.sellPrice;
-            periodData.prevPeriodBuyPriceDiff = periodData.buyPrice - prevPeriodData.buyPrice;
+            const prevPeriodSellAvg = prevPeriodData.totalSellPrice / prevPeriodData.totalSellPriceUpdates;
+            const prevPeriodBuyAvg = prevPeriodData.totalBuyPrice / prevPeriodData.totalBuyPriceUpdates;
+
+            periodData.prevPeriodSellPriceDiff = currentPeriodSellAvg - prevPeriodSellAvg;
+            periodData.prevPeriodBuyPriceDiff = currentPeriodBuyAvg - prevPeriodBuyAvg;
 
             return periodData;
         });
 
         return {
             id: caseData.id,
-            caseName: caseData.case_steam_name,
-            caseNameEn: caseData.case_steam_name_en,
-            caseId: caseData.case_steam_id,
+            itemName: caseData.item_steam_name,
+            itemNameEn: caseData.item_steam_name_en,
+            itemId: caseData.item_steam_id,
             periodsData: parsedStatData,
         };
     });
@@ -37,8 +46,8 @@ router.get('/', async (request, response) => {
 });
 
 router.post('/', async (request, response) => {
-    const { caseSteamName, caseSteamId, caseSteamNameEn } = request.body;
-    await CasesService.create(caseSteamId, caseSteamName, caseSteamNameEn);
+    const { steamName, steamId, steamNameEn } = request.body;
+    await DynamicItems.create(steamId, steamName, steamNameEn);
 
     response.sendStatus(200);
 });

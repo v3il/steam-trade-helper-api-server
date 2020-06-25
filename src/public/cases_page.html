@@ -18,9 +18,9 @@
         <tbody id="items-table-tbody">
         <tr v-for="item in items" :key="item.id">
             <td>{{item.id}}</td>
-            <td><a :href="`https://steamcommunity.com/market/listings/730/${item.caseNameEn}`" target="_blank">{{item.caseName}}</a></td>
+            <td><a :href="`https://steamcommunity.com/market/listings/730/${item.itemNameEn}`" target="_blank">{{item.itemName}}</a></td>
             <td v-for="periodData in item.periodsData">
-                {{periodData.sellPrice.toFixed(2)}}
+                {{periodData.sellPriceAvg.toFixed(2)}}
                 <span
                     :class="[periodData.prevPeriodSellPriceDiff === undefined ? '' : periodData.prevPeriodSellPriceDiff > 0 ? 'text-success' : 'text-danger']"
                     style="font-weight:bold; font-size: small"
