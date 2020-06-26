@@ -6,24 +6,53 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 </head>
 <body>
+
+<style>
+    body, html {
+        background-color: #121212;
+    }
+
+    td, th {
+        vertical-align: middle !important;
+    }
+
+    td.active, th.active {
+        background-color: #2c2e32;
+        color: white;
+    }
+
+    td.success {
+        background-color: #28a7457a;
+    }
+
+    .data-column {
+        width: 110px;
+        text-align: center;
+    }
+
+    a {
+        color: white;
+    }
+</style>
+
 <div id="app" style="padding: 12px">
-    <table id="items-table" class="table table-striped table-hover">
+    <table id="items-table" class="table table-striped table-hover table-sm table-dark">
         <thead id="items-table-thead">
         <tr>
-            <th>ID</th>
             <th>Название</th>
-            <th v-for="periodDate in periodDates">{{periodDate}}</th>
+            <th v-for="(periodDate, index) in periodDates" :class="[index === activeColumnIndex ? 'active' : '', 'data-column']">{{periodDate}}</th>
         </tr>
         </thead>
         <tbody id="items-table-tbody">
         <tr v-for="item in items" :key="item.id">
-            <td>{{item.id}}</td>
             <td><a :href="`https://steamcommunity.com/market/listings/730/${item.itemNameEn}`" target="_blank">{{item.itemName}}</a></td>
-            <td v-for="periodData in item.periodsData">
+            <td v-for="(periodData, index) in item.periodsData" class="data-column" :class="[
+                index === activeColumnIndex ? 'active' : '',
+                index === activeColumnIndex && periodData.prevPeriodSellPriceDiff !== undefined && periodData.prevPeriodSellPriceDiff > 0 ? 'success' : '',
+            ]">
                 {{periodData.sellPriceAvg.toFixed(2)}}
                 <span
-                    :class="[periodData.prevPeriodSellPriceDiff === undefined ? '' : periodData.prevPeriodSellPriceDiff > 0 ? 'text-success' : 'text-danger']"
-                    style="font-weight:bold; font-size: small"
+                    style="font-weight:bold; font-size: small; display: block"
                 >
                     {{periodData.prevPeriodSellPriceDiff === undefined ? '&nbsp;' : `(${periodData.prevPeriodSellPriceDiff.toFixed(2)})`}}
                 </span>

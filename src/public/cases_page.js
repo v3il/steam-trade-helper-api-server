@@ -1,3 +1,5 @@
+const formatNumber = (number) => number < 10 ? `0${number}` : number;
+
 new Vue({
     el: '#app',
     data: { items: [] },
@@ -10,7 +12,14 @@ new Vue({
 
             const firstItem = this.items[0];
             return firstItem.periodsData.map(periodData => periodData.date);
-        }
+        },
+
+        activeColumnIndex() {
+            const date = new Date();
+            const statDate = `${formatNumber(date.getDate())}.${formatNumber(date.getMonth() + 1)}`;
+
+            return this.periodDates.findIndex(periodsDate => periodsDate === statDate);
+        },
     },
 
     methods: {
@@ -27,6 +36,6 @@ new Vue({
         setInterval(() => {
             console.error('Update items');
             this.loadItems();
-        }, 10000);
+        }, 5000);
     }
 });

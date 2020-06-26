@@ -52,6 +52,10 @@ const updateItemData = async (itemData) => {
 
         const { sell_order_graph: sellData, buy_order_graph: buyData } = response.data;
 
+        if (!(sellData && buyData)) {
+            return;
+        }
+
         const firstSellData = sellData[0]; // [price, volume, text]
 
         if (firstSellData) {
