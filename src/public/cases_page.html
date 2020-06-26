@@ -2,60 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Cases</title>
+    <title>Отслеживаемые предметы</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./cases_page.css">
 </head>
 <body>
 
-<style>
-    body, html {
-        background-color: #121212;
-    }
-
-    td, th {
-        vertical-align: middle !important;
-    }
-
-    td.active, th.active {
-        background-color: #2c2e32;
-        color: white;
-    }
-
-    td.success {
-        background-color: #28a7457a;
-    }
-
-    .data-column {
-        width: 110px;
-        text-align: center;
-    }
-
-    a {
-        color: white;
-    }
-</style>
-
-<div id="app" style="padding: 12px">
-    <table id="items-table" class="table table-striped table-hover table-sm table-dark">
+<div id="app">
+    <table id="items-table" class="table table-striped table-hover table-dark">
         <thead id="items-table-thead">
         <tr>
-            <th>Название</th>
-            <th v-for="(periodDate, index) in periodDates" :class="[index === activeColumnIndex ? 'active' : '', 'data-column']">{{periodDate}}</th>
+            <th class="name-column">Название</th>
+            <th v-for="periodDate in periodDates" :class="[periodDate === currentDateStr ? 'active' : '', 'data-column']">
+                {{periodDate}}
+            </th>
         </tr>
         </thead>
+
         <tbody id="items-table-tbody">
-        <tr v-for="item in items" :key="item.id">
-            <td><a :href="`https://steamcommunity.com/market/listings/730/${item.itemNameEn}`" target="_blank">{{item.itemName}}</a></td>
-            <td v-for="(periodData, index) in item.periodsData" class="data-column" :class="[
-                index === activeColumnIndex ? 'active' : '',
-                index === activeColumnIndex && periodData.prevPeriodSellPriceDiff !== undefined && periodData.prevPeriodSellPriceDiff > 0 ? 'success' : '',
+        <tr v-for="item in sortedItems" :key="item.id">
+            <td class="name-column">
+                <a :href="`https://steamcommunity.com/market/listings/730/${item.itemNameEn}`" target="_blank">
+                    {{item.itemName}}
+                </a>
+            </td>
+
+            <td v-for="date in periodDates" class="data-column" :class="[
+                date === currentDateStr ? 'active' : '',
+                date === currentDateStr && getDiffForDate(item, date) > 0 ? 'success' : '',
             ]">
-                {{periodData.sellPriceAvg.toFixed(2)}}
-                <span
-                    style="font-weight:bold; font-size: small; display: block"
-                >
-                    {{periodData.prevPeriodSellPriceDiff === undefined ? '&nbsp;' : `(${periodData.prevPeriodSellPriceDiff.toFixed(2)})`}}
-                </span>
+                <span v-html="getPriceForDate(item, date)"></span>
+                <span v-html="getDiffForDate(item, date) !== null ? `(${getDiffForDate(item, date).toFixed(2)})` : '&nbsp;'"></span>
             </td>
         </tr>
         </tbody>
