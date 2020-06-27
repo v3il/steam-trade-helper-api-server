@@ -59,6 +59,14 @@ new Vue({
             fetch('/cases')
                 .then(r => r.json())
                 .then(r => this.items = r.cases);
+        },
+
+        deleteItem(item) {
+            fetch(`/cases?id=${item.id}`, {
+                method: 'delete',
+            }).then(() => {
+                this.items = this.items.filter(i => item !== i);
+            });
         }
     },
 

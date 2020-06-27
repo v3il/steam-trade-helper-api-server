@@ -16,6 +16,7 @@
             <th v-for="periodDate in periodDates" :class="[periodDate === currentDateStr ? 'active' : '', 'data-column']">
                 {{periodDate}}
             </th>
+            <th class="name-column">&nbsp;</th>
         </tr>
         </thead>
 
@@ -33,6 +34,9 @@
             ]">
                 <span v-html="getPriceForDate(item, date)"></span>
                 <span v-html="getDiffForDate(item, date) !== null ? `(${getDiffForDate(item, date).toFixed(2)})` : '&nbsp;'"></span>
+            </td>
+            <td>
+                <a href="#" @click.prevent="deleteItem(item)">Удалить</a>
             </td>
         </tr>
         </tbody>

@@ -18,5 +18,9 @@ module.exports = {
 
     async update(where, updatedData) {
         await knexInstance(TABLE_NAME).where(where).update(updatedData);
+    },
+
+    async delete(where) {
+        await knexInstance(TABLE_NAME).where(where).del();
     }
 }

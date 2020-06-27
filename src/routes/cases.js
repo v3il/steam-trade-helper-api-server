@@ -52,4 +52,11 @@ router.post('/', async (request, response) => {
     response.sendStatus(200);
 });
 
+router.delete('/', async (request, response) => {
+    const { id } = request.query;
+    await DynamicItems.delete({ id });
+
+    response.sendStatus(200);
+});
+
 module.exports = router;
