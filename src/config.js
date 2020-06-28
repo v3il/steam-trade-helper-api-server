@@ -18,5 +18,5 @@ module.exports = {
 
     MAX_STAT_PERIOD: 14,
     AVG_PRICE_SELECTION_LENGTH: 20,
-    UPDATE_INFO_DELAY: 10 * 1000,
+    UPDATE_INFO_DELAY: 5 * 1000,
 };

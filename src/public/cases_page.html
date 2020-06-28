@@ -5,43 +5,35 @@
     <title>Отслеживаемые предметы</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="./cases_page.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 </head>
 <body>
 
 <div id="app">
-    <table id="items-table" class="table table-striped table-hover table-dark">
+    <table id="items-table" class="table table-striped1 table-hover table-dark">
         <thead id="items-table-thead">
         <tr>
             <th class="name-column">Название</th>
-            <th v-for="periodDate in periodDates" :class="[periodDate === currentDateStr ? 'active' : '', 'data-column']">
-                {{periodDate}}
-            </th>
-            <th class="name-column">&nbsp;</th>
+<!--            <th v-for="periodDate in periodDates" :class="[periodDate === currentDateStr ? 'active' : '', 'data-column']">-->
+<!--                {{periodDate}}-->
+<!--            </th>-->
+<!--            <th class="name-column">&nbsp;</th>-->
+<!--            <th class="name-column">&nbsp;</th>-->
         </tr>
         </thead>
 
         <tbody id="items-table-tbody">
-        <tr v-for="item in sortedItems" :key="item.id">
-            <td class="name-column">
-                <a :href="`https://steamcommunity.com/market/listings/730/${item.itemNameEn}`" target="_blank">
-                    {{item.itemName}}
-                </a>
-            </td>
+        <tr is="item-view" v-for="item in sortedItems" :key="item.id" :item="item"></tr>
 
-            <td v-for="date in periodDates" class="data-column" :class="[
-                date === currentDateStr ? 'active' : '',
-                date === currentDateStr && getDiffForDate(item, date) > 0 ? 'success' : '',
-            ]">
-                <span v-html="getPriceForDate(item, date)"></span>
-                <span v-html="getDiffForDate(item, date) !== null ? `(${getDiffForDate(item, date).toFixed(2)})` : '&nbsp;'"></span>
-            </td>
-            <td>
-                <a href="#" @click.prevent="deleteItem(item)">Удалить</a>
-            </td>
-        </tr>
+<!--        <tr is="item-view" ></tr>-->
         </tbody>
     </table>
 </div>
+
+
+<script>
+
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="./cases_page.js"></script>

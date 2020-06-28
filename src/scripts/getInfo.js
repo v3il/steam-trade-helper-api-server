@@ -7,33 +7,15 @@ const { formatNumber } = require('../util');
 
 const promisifiedSetTimeout = promisify(setTimeout);
 
+const getTimestamp = () => Math.floor(Date.now() / 1000);
+
+const maxData = 12 * 24 * 7; // every 5 min
+
 const updateItemData = async (itemData) => {
     const { id, stat_data: statData, item_steam_id: itemSteamId, item_steam_name: itemSteamName } = itemData;
+    const parsedStat = [] || JSON.parse(statData);
 
     console.log(`Обновляем данные предмета "${itemSteamName}"`);
-
-    const parsedStat = JSON.parse(statData);
-
-    const date = new Date();
-    const statDate = `${formatNumber(date.getDate())}.${formatNumber(date.getMonth() + 1)}`;
-
-    let statForCurrentDay = parsedStat.find(stat => stat.date === statDate);
-
-    if (!statForCurrentDay) {
-        statForCurrentDay = {
-            date: statDate,
-            totalSellPrice: 0,
-            totalSellPriceUpdates: 0,
-            totalBuyPrice: 0,
-            totalBuyPriceUpdates: 0,
-        };
-
-        parsedStat.push(statForCurrentDay);
-
-        if (parsedStat.length > config.MAX_STAT_PERIOD) {
-            parsedStat.shift();
-        }
-    }
 
     try {
         const response = await axios.get('https://steamcommunity.com/market/itemordershistogram', {
@@ -50,24 +32,19 @@ const updateItemData = async (itemData) => {
             return;
         }
 
-        const { sell_order_graph: sellData, buy_order_graph: buyData } = response.data;
+        const { sell_order_graph: sellData } = response.data;
 
-        if (!(sellData && buyData)) {
+        if (!(sellData && sellData[0])) {
             return;
         }
 
-        const firstSellData = sellData[0]; // [price, volume, text]
+        parsedStat.push({
+            timestamp: getTimestamp(),
+            minPrice: sellData[0][0], // [price, volume, text]
+        });
 
-        if (firstSellData) {
-            statForCurrentDay.totalSellPrice += firstSellData[0];
-            statForCurrentDay.totalSellPriceUpdates++;
-        }
-
-        const firstBuyData = buyData[0]; // [price, volume, text]
-
-        if (firstBuyData) {
-            statForCurrentDay.totalBuyPrice += firstBuyData[0];
-            statForCurrentDay.totalBuyPriceUpdates++;
+        while (parsedStat.length > maxData) {
+            parsedStat.shift();
         }
 
         await DynamicItems.update({ id }, {
@@ -75,14 +52,14 @@ const updateItemData = async (itemData) => {
         });
     } catch (error) {
         if (error.response) {
-        	if (error.response.status === 429) {
-    			console.error('429');
-        		process.exit(1);
-        	} else {
-        		console.error(error.message);
-        	}
+            if (error.response.status === 429) {
+                console.error('429');
+                process.exit(1);
+            } else {
+                console.error(error.message);
+            }
         } else {
-        	console.error(error.message);
+            console.error(error.message);
         }
     }
 };
@@ -99,8 +76,10 @@ const updateItemsData = async () => {
     await updateItemsData();
 }
 
-module.exports = () => {
+module.exports = async () => {
+    await updateItemsData();
+
     setTimeout(async () => {
         await updateItemsData();
-    }, config.UPDATE_INFO_DELAY);
+    }, 5 * 60 * 1000);
 };
