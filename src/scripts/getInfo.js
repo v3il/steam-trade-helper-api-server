@@ -3,17 +3,35 @@ const { promisify } = require('util');
 
 const DynamicItems = require('../services/DynamicItems');
 const config = require("../config");
-const { formatNumber } = require('../util');
 
 const promisifiedSetTimeout = promisify(setTimeout);
 
-const getTimestamp = () => Math.floor(Date.now() / 1000);
+const getTimestamp = (date) => {
+    const ms = date ? date.getTime() : Date.now();
+    return Math.floor(ms / 1000)
+};
 
-const maxData = 12 * 24 * 7; // every 5 min
+const getTimestampOfBeginningOfCurrentHour = () => {
+    const now = new Date();
+    now.setMinutes(0);
+    now.setSeconds(0);
+    now.setMilliseconds(0);
+    return getTimestamp(now);
+};
+
+const getTimestampOfEndingOfCurrentHour = () => {
+    const now = new Date();
+    now.setMinutes(59);
+    now.setSeconds(59);
+    now.setMilliseconds(0);
+    return getTimestamp(now);
+};
+
+const maxData = 24 * 7; // every 5 min
 
 const updateItemData = async (itemData) => {
     const { id, stat_data: statData, item_steam_id: itemSteamId, item_steam_name: itemSteamName } = itemData;
-    const parsedStat = [] || JSON.parse(statData);
+    const parsedStat = JSON.parse(statData);
 
     console.log(`Обновляем данные предмета "${itemSteamName}"`);
 
@@ -38,14 +56,31 @@ const updateItemData = async (itemData) => {
             return;
         }
 
-        parsedStat.push({
-            timestamp: getTimestamp(),
-            minPrice: sellData[0][0], // [price, volume, text]
+        const currentTimestamp = getTimestamp();
+        const currentHourBeginning = getTimestampOfBeginningOfCurrentHour();
+        const currentHourEnding = getTimestampOfEndingOfCurrentHour();
+
+        let statForCurrentHour = parsedStat.find(item => {
+            return currentTimestamp >= item.start && currentTimestamp <= item.end;
         });
 
-        while (parsedStat.length > maxData) {
-            parsedStat.shift();
+        if (!statForCurrentHour) {
+            statForCurrentHour = {
+                start: currentHourBeginning,
+                end: currentHourEnding,
+                priceAccumulator: 0,
+                updatesCount: 0,
+            };
+
+            parsedStat.push(statForCurrentHour);
+
+            if (parsedStat.length >= maxData) {
+                parsedStat.shift();
+            }
         }
+
+        statForCurrentHour.priceAccumulator += sellData[0][0];
+        statForCurrentHour.updatesCount++;
 
         await DynamicItems.update({ id }, {
             stat_data: JSON.stringify(parsedStat),
@@ -81,5 +116,5 @@ module.exports = async () => {
 
     setTimeout(async () => {
         await updateItemsData();
-    }, 5 * 60 * 1000);
+    }, 5 * 1000);
 };

@@ -27,7 +27,7 @@ td.success {
 }
 
 .name-column {
-    text-align: right !important;
+    /*text-align: right !important;*/
 }
 
 .data-column span:last-child {

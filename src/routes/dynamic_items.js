@@ -12,21 +12,15 @@ router.get('/', async (request, response) => {
         const parsedStatData = periodsData.map((periodData, index) => {
             const prevPeriodData = periodsData[index - 1];
 
-            const currentPeriodSellAvg = periodData.totalSellPrice / periodData.totalSellPriceUpdates;
-            const currentPeriodBuyAvg = periodData.totalBuyPrice / periodData.totalBuyPriceUpdates;
-
+            const currentPeriodSellAvg = periodData.priceAccumulator / periodData.updatesCount;
             periodData.sellPriceAvg = currentPeriodSellAvg;
-            periodData.buyPriceAvg = currentPeriodBuyAvg;
 
             if (!prevPeriodData) {
                 return periodData;
             }
 
-            const prevPeriodSellAvg = prevPeriodData.totalSellPrice / prevPeriodData.totalSellPriceUpdates;
-            const prevPeriodBuyAvg = prevPeriodData.totalBuyPrice / prevPeriodData.totalBuyPriceUpdates;
-
+            const prevPeriodSellAvg = prevPeriodData.priceAccumulator / prevPeriodData.updatesCount;
             periodData.prevPeriodSellPriceDiff = currentPeriodSellAvg - prevPeriodSellAvg;
-            periodData.prevPeriodBuyPriceDiff = currentPeriodBuyAvg - prevPeriodBuyAvg;
 
             return periodData;
         });

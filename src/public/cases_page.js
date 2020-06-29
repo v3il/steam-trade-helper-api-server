@@ -53,6 +53,7 @@ const ItemView = Vue.component('item-view', {
             var ctx = this.$el.querySelector('.js-chart').getContext('2d');
             this.chartInstance = new Chart(ctx, {
                 type: 'line',
+
                 data: {
                     labels,
                     datasets: [{
@@ -68,9 +69,10 @@ const ItemView = Vue.component('item-view', {
                     }]
                 },
                 options: {
+                    responsive: true,
                     elements: {
                         point: {
-                            radius: 0
+                            radius: 1
                         }
                     },
                     maintainAspectRatio: false,
@@ -151,30 +153,7 @@ new Vue({
 
         sortedItems() {
             return this.items.sort((a, b) => {
-                const aStatForToday = a.periodsData.find(data => data.date === this.currentDateStr);
-                const bStatForToday = b.periodsData.find(data => data.date === this.currentDateStr);
-
-                if (!(aStatForToday && bStatForToday)) {
-                    return 0;
-                }
-
-                if (!aStatForToday && bStatForToday) {
-                    return -1;
-                }
-
-                if (aStatForToday && !bStatForToday) {
-                    return 1;
-                }
-
-                if (aStatForToday.prevPeriodSellPriceDiff === undefined) {
-                    return 1;
-                }
-
-                if (bStatForToday.prevPeriodSellPriceDiff === undefined) {
-                    return -1;
-                }
-
-                return bStatForToday.prevPeriodSellPriceDiff - aStatForToday.prevPeriodSellPriceDiff;
+                return a.id - b.id;
             });
         }
     },
