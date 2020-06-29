@@ -35,14 +35,8 @@ const ItemView = Vue.component('item-view', {
     },
 
     mounted() {
-        const data = this.item.periodsData.map(item => item.minPrice);
-        const labels = this.item.periodsData.map(item => {
-            const date = new Date(item.timestamp * 1000);
-            return `${formatNumber(date.getHours())}.${formatNumber(date.getMinutes())}`;
-        });
-
-        console.log(data.length)
-
+        const data = this.item.periodsData.map(item => item.sellPriceAvg);
+        const labels = this.item.periodsData.map(item => item.formattedDate);
 
         Chart.defaults.global.defaultColor = '#454d55';
         Chart.defaults.global.defaultFontColor = "#fff";
@@ -53,62 +47,24 @@ const ItemView = Vue.component('item-view', {
             var ctx = this.$el.querySelector('.js-chart').getContext('2d');
             this.chartInstance = new Chart(ctx, {
                 type: 'line',
-
                 data: {
                     labels,
                     datasets: [{
                         label: '',
                         data,
-                        backgroundColor: [
-                            'rgba(255, 255, 255, 0.2)',
-                        ],
-                        borderColor: [
-                            '#fff',
-                        ],
+                        backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                        borderColor: ['#fff'],
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    elements: {
-                        point: {
-                            radius: 1
-                        }
-                    },
+                    elements: { point: { radius: 1 } },
                     maintainAspectRatio: false,
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     scales: {
-                        xAxes: [{
-                            // type: 'linear',
-                            // position: 'bottom',
-                            // ticks: {
-                            //     min: -1,
-                            //     max: 8,
-                            //     stepSize: 1,
-                            //     fixedStepSize: 1,
-                            // },
-                            gridLines: {
-                                color: '#454d55',
-                                // lineWidth: 1
-                            }
-                        }],
-                        yAxes: [{
-                            // afterUpdate: function (scaleInstance) {
-                            //     console.dir(scaleInstance);
-                            // },
-                            // ticks: {
-                            //     min: -2,
-                            //     max: 4,
-                            //     stepSize: 1,
-                            //     fixedStepSize: 1,
-                            // },
-                            gridLines: {
-                                color: '#454d55',
-                                // lineWidth: 0.5
-                            }
-                        }]
+                        xAxes: [{ gridLines: { color: '#454d55' }}],
+                        yAxes: [{ gridLines: { color: '#454d55' }, ticks: { precision: 2 }}],
                     }
                 }
             });
@@ -118,11 +74,8 @@ const ItemView = Vue.component('item-view', {
     watch: {
         item: {
             handler(newItem) {
-                const data = newItem.periodsData.map(item => item.minPrice);
-                const labels = newItem.periodsData.map(item => {
-                    const date = new Date(item.timestamp * 1000);
-                    return `${formatNumber(date.getHours())}.${formatNumber(date.getMinutes())}`;
-                });
+                const data = newItem.periodsData.map(item => item.sellPriceAvg);
+                const labels = this.item.periodsData.map(item => item.formattedDate);
 
                 this.chartInstance.data.datasets[0].data = data;
                 this.chartInstance.data.labels = labels;

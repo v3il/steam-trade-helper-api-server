@@ -11,7 +11,7 @@ const getTimestamp = (date) => {
     return Math.floor(ms / 1000)
 };
 
-const getTimestampOfBeginningOfCurrentHour = () => {
+const getCurrentPeriodBeginning = () => {
     const now = new Date();
     now.setMinutes(0);
     now.setSeconds(0);
@@ -19,15 +19,15 @@ const getTimestampOfBeginningOfCurrentHour = () => {
     return getTimestamp(now);
 };
 
-const getTimestampOfEndingOfCurrentHour = () => {
+const getCurrentPeriodEnding = () => {
     const now = new Date();
-    now.setMinutes(59);
+    now.setMinutes(now.getMinutes() >= 30 ? 59 : 29);
     now.setSeconds(59);
     now.setMilliseconds(0);
     return getTimestamp(now);
 };
 
-const maxData = 24 * 7; // every 5 min
+const maxData = 2 * 24 * 7; // every 30 min
 
 const updateItemData = async (itemData) => {
     const { id, stat_data: statData, item_steam_id: itemSteamId, item_steam_name: itemSteamName } = itemData;
@@ -57,8 +57,8 @@ const updateItemData = async (itemData) => {
         }
 
         const currentTimestamp = getTimestamp();
-        const currentHourBeginning = getTimestampOfBeginningOfCurrentHour();
-        const currentHourEnding = getTimestampOfEndingOfCurrentHour();
+        const currentHourBeginning = getCurrentPeriodBeginning();
+        const currentHourEnding = getCurrentPeriodEnding();
 
         let statForCurrentHour = parsedStat.find(item => {
             return currentTimestamp >= item.start && currentTimestamp <= item.end;
@@ -113,8 +113,4 @@ const updateItemsData = async () => {
 
 module.exports = async () => {
     await updateItemsData();
-
-    setTimeout(async () => {
-        await updateItemsData();
-    }, 5 * 1000);
 };

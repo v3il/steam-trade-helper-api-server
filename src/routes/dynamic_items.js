@@ -1,7 +1,14 @@
 const express = require('express');
 const DynamicItems = require('../services/DynamicItems');
 
+const { formatNumber } = require('../util');
+
 const router = express.Router();
+
+const timestampToFormattedDate = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    return `${formatNumber(date.getDay())}.${formatNumber(date.getMonth() + 1)} ${formatNumber(date.getHours())}:${formatNumber(date.getMinutes())}`;
+}
 
 router.get('/', async (request, response) => {
     const cases = await DynamicItems.getAll();
@@ -14,15 +21,21 @@ router.get('/', async (request, response) => {
 
             const currentPeriodSellAvg = periodData.priceAccumulator / periodData.updatesCount;
             periodData.sellPriceAvg = currentPeriodSellAvg;
+            periodData.formattedDate = timestampToFormattedDate(periodData.end);
+
+            const data = {
+                sellPriceAvg: currentPeriodSellAvg,
+                formattedDate: timestampToFormattedDate(periodData.end),
+            };
 
             if (!prevPeriodData) {
-                return periodData;
+                return data;
             }
 
             const prevPeriodSellAvg = prevPeriodData.priceAccumulator / prevPeriodData.updatesCount;
-            periodData.prevPeriodSellPriceDiff = currentPeriodSellAvg - prevPeriodSellAvg;
+            data.prevPeriodSellPriceDiff = currentPeriodSellAvg - prevPeriodSellAvg;
 
-            return periodData;
+            return data;
         });
 
         return {
