@@ -17,26 +17,16 @@ router.get('/', async (request, response) => {
         const periodsData = JSON.parse(caseData.stat_data);
 
         const parsedStatData = periodsData.map((periodData, index) => {
-            const prevPeriodData = periodsData[index - 1];
-
             const currentPeriodSellAvg = periodData.priceAccumulator / periodData.updatesCount;
-            periodData.sellPriceAvg = currentPeriodSellAvg;
-            periodData.formattedDate = timestampToFormattedDate(periodData.end);
 
-            const data = {
+            return {
                 sellPriceAvg: currentPeriodSellAvg,
                 formattedDate: timestampToFormattedDate(periodData.end),
             };
-
-            if (!prevPeriodData) {
-                return data;
-            }
-
-            const prevPeriodSellAvg = prevPeriodData.priceAccumulator / prevPeriodData.updatesCount;
-            data.prevPeriodSellPriceDiff = currentPeriodSellAvg - prevPeriodSellAvg;
-
-            return data;
         });
+
+        const lastData = parsedStatData[parsedStatData.length - 1];
+        const prevLastData = parsedStatData[parsedStatData.length - 2];
 
         return {
             id: caseData.id,
@@ -44,6 +34,7 @@ router.get('/', async (request, response) => {
             itemNameEn: caseData.item_steam_name_en,
             itemId: caseData.item_steam_id,
             periodsData: parsedStatData,
+            lastPeriodDiff: lastData && prevLastData ? lastData.sellPriceAvg - prevLastData.sellPriceAvg : 0,
         };
     });
 

@@ -7,6 +7,18 @@ body, html {
     padding: 12px;
 }
 
+.item-view__diff {
+    font-size: smaller;
+}
+
+.item-view__diff--positive {
+    color: lightgreen;
+}
+
+.item-view__diff--negative {
+    color: lightcoral;
+}
+
 .item-view__header {
     margin-bottom: 12px;
     display: flex;

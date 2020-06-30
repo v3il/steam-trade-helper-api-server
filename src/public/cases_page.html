@@ -10,7 +10,7 @@
 <body>
 
 <div id="app">
-    <item-view v-for="item in items" :key="item.id" :item="item" @delete="deleteItem(item)"></item-view>
+    <item-view v-for="item in sortedItems" :key="item.id" :item="item" @delete="deleteItem(item)"></item-view>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>

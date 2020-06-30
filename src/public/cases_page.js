@@ -2,8 +2,14 @@ const ItemView = Vue.component('item-view', {
     template: `
         <div class="item-view">
             <div class="item-view__header">
-                <a :href="itemLink" target="_blank">{{item.itemName}}</a>
-                <a href="#" class="item-view__remove">Удалить</a>
+                <div>
+                    <a :href="itemLink" target="_blank">{{item.itemName}}</a>
+                    <span class="item-view__diff" :class="[
+                        item.lastPeriodDiff > 0 ? 'item-view__diff--positive' : 'item-view__diff--negative',
+                    ]">({{item.lastPeriodDiff.toFixed(2)}})</span>
+                </div>
+                
+                <a href="javascript://" @click.prevent="$emit('delete')" class="item-view__remove">Удалить</a>
             </div>
             
             <div class="item-view__chart-wrapper">
@@ -25,7 +31,7 @@ const ItemView = Vue.component('item-view', {
     computed: {
         itemLink() {
             return `https://steamcommunity.com/market/listings/730/${this.item.itemNameEn}`;
-        }
+        },
     },
 
     mounted() {
@@ -84,6 +90,14 @@ new Vue({
         ItemView,
     },
 
+    computed: {
+        sortedItems() {
+            return this.items.sort((a, b) => {
+                return b.lastPeriodDiff - a.lastPeriodDiff;
+            });
+        }
+    },
+
     methods: {
         loadItems() {
             fetch('/dynamic_items')
@@ -91,10 +105,12 @@ new Vue({
                 .then(response => { this.items = response.cases });
         },
 
-        deleteItem(item) {
-            fetch(`/dynamic_items?id=${item.id}`, { method: 'delete' }).then(() => {
-                this.items = this.items.filter(i => item !== i);
-            });
+        deleteItem(itemData) {
+            if (confirm('Удалить?')) {
+                fetch(`/dynamic_items?id=${itemData.id}`, { method: 'delete' }).then(() => {
+                    this.items = this.items.filter(item => itemData !== item);
+                });
+            }
         },
     },
 
@@ -109,6 +125,6 @@ new Vue({
         setInterval(() => {
             console.error('Update items');
             this.loadItems();
-        }, 10 * 1000);
+        }, 30 * 1000);
     },
 });
