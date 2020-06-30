@@ -21,13 +21,13 @@ const getCurrentPeriodBeginning = () => {
 
 const getCurrentPeriodEnding = () => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() >= 30 ? 59 : 29);
+    now.setMinutes(59);
     now.setSeconds(59);
     now.setMilliseconds(0);
     return getTimestamp(now);
 };
 
-const maxData = 2 * 24 * 7; // every 30 min
+const maxData = 24 * 7; // every hour
 
 const updateItemData = async (itemData) => {
     const { id, stat_data: statData, item_steam_id: itemSteamId, item_steam_name: itemSteamName } = itemData;

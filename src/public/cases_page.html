@@ -10,30 +10,8 @@
 <body>
 
 <div id="app">
-    <table id="items-table" class="table table-striped1 table-hover table-dark">
-        <thead id="items-table-thead">
-        <tr>
-            <th class="name-column">Название</th>
-<!--            <th v-for="periodDate in periodDates" :class="[periodDate === currentDateStr ? 'active' : '', 'data-column']">-->
-<!--                {{periodDate}}-->
-<!--            </th>-->
-<!--            <th class="name-column">&nbsp;</th>-->
-<!--            <th class="name-column">&nbsp;</th>-->
-        </tr>
-        </thead>
-
-        <tbody id="items-table-tbody">
-        <tr is="item-view" v-for="item in sortedItems" :key="item.id" :item="item"></tr>
-
-<!--        <tr is="item-view" ></tr>-->
-        </tbody>
-    </table>
+    <item-view v-for="item in items" :key="item.id" :item="item" @delete="deleteItem(item)"></item-view>
 </div>
-
-
-<script>
-
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="./cases_page.js"></script>

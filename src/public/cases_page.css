@@ -2,37 +2,24 @@ body, html {
     background-color: #121212;
 }
 
-#app {
+.item-view {
+    background-color: #343a40;
     padding: 12px;
 }
 
-td, th {
-    vertical-align: middle !important;
+.item-view__header {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
 }
 
-td.active, th.active {
-    background-color: #2c2e32;
-    color: white;
+.item-view__remove {
+    color: lightcoral;
 }
 
-td.success {
-    background-color: #28a7457a;
-}
-
-.data-column {
-    border-left: 1px solid #454d55;
-    border-right: 1px solid #454d55;
-    width: 120px;
-    text-align: center;
-}
-
-.name-column {
-    /*text-align: right !important;*/
-}
-
-.data-column span:last-child {
-    font-weight:bold;
-    font-size: small;
+.item-view__chart-wrapper {
+    height: 150px;
+    position: relative;
 }
 
 a {
