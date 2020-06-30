@@ -7,6 +7,10 @@ module.exports = {
         return knexInstance(TABLE_NAME).select();
     },
 
+    async get(where) {
+        return knexInstance(TABLE_NAME).where(where).select();
+    },
+
     async create(caseSteamId, caseSteamName, caseSteamNameEn) {
         await knexInstance(TABLE_NAME).insert({
             item_steam_id: caseSteamId,

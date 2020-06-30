@@ -41,7 +41,7 @@ const ItemView = Vue.component('item-view', {
         this.$nextTick(() => {
             const ctx = this.$el.querySelector('.js-chart').getContext('2d');
 
-            this.chartInstance = new Chart(ctx, {
+            const options = {
                 type: 'line',
                 data: {
                     labels,
@@ -61,9 +61,27 @@ const ItemView = Vue.component('item-view', {
                     scales: {
                         xAxes: [{ gridLines: { color: '#454d55' }}],
                         yAxes: [{ gridLines: { color: '#454d55' }, ticks: { callback: label => label.toFixed(2) }}],
-                    }
-                }
-            });
+                    },
+                },
+            };
+
+            if (this.item.myAutoPrice) {
+                options.options.annotation = {
+                    drawTime: 'afterDatasetsDraw',
+                    annotations: [
+                        {
+                            type: 'line',
+                            mode: 'horizontal',
+                            scaleID: 'y-axis-0',
+                            value: this.item.myAutoPrice,
+                            borderColor: 'red',
+                            borderWidth: 1,
+                        },
+                    ]
+                };
+            }
+
+            this.chartInstance = new Chart(ctx, options);
         });
     },
 

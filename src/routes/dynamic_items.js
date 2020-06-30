@@ -11,9 +11,9 @@ const timestampToFormattedDate = (timestamp) => {
 }
 
 router.get('/', async (request, response) => {
-    const cases = await DynamicItems.getAll();
+    const dynamicItems = await DynamicItems.getAll();
 
-    const parsedCasesData = cases.map((caseData) => {
+    const parsedCasesData = dynamicItems.map((caseData) => {
         const periodsData = JSON.parse(caseData.stat_data);
 
         const parsedStatData = periodsData.map((periodData, index) => {
@@ -35,6 +35,7 @@ router.get('/', async (request, response) => {
             itemId: caseData.item_steam_id,
             periodsData: parsedStatData,
             lastPeriodDiff: lastData && prevLastData ? lastData.sellPriceAvg - prevLastData.sellPriceAvg : 0,
+            myAutoPrice: caseData.my_auto_price,
         };
     });
 
@@ -46,6 +47,22 @@ router.get('/', async (request, response) => {
 router.post('/', async (request, response) => {
     const { steamName, steamId, steamNameEn } = request.body;
     await DynamicItems.create(steamId, steamName, steamNameEn);
+
+    response.sendStatus(200);
+});
+
+router.post('/update_price', async (request, response) => {
+    const { price, itemId } = request.body;
+
+    const selectedItems = await DynamicItems.get({ item_steam_id: itemId });
+
+    if (!selectedItems.length) {
+        return response.sendStatus(404);
+    }
+
+    await DynamicItems.update({ item_steam_id: itemId }, {
+        my_auto_price: price || null,
+    });
 
     response.sendStatus(200);
 });
