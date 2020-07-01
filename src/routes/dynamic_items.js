@@ -7,7 +7,7 @@ const router = express.Router();
 
 const timestampToFormattedDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
-    return `${formatNumber(date.getDay())}.${formatNumber(date.getMonth() + 1)} ${formatNumber(date.getHours())}:${formatNumber(date.getMinutes())}`;
+    return `${formatNumber(date.getDate())}.${formatNumber(date.getMonth() + 1)} ${formatNumber(date.getHours())}:${formatNumber(date.getMinutes())}`;
 }
 
 router.get('/', async (request, response) => {
@@ -18,17 +18,24 @@ router.get('/', async (request, response) => {
 
         const parsedStatData = periodsData.map((periodData, index) => {
             const currentPeriodSellAvg = periodData.priceAccumulator / periodData.updatesCount;
+            const formattedDate = timestampToFormattedDate(periodData.end);
 
             return {
+                formattedDate,
                 sellPriceAvg: currentPeriodSellAvg,
-                formattedDate: timestampToFormattedDate(periodData.end),
             };
         });
 
         const lastData = parsedStatData[parsedStatData.length - 1];
         const prevLastData = parsedStatData[parsedStatData.length - 2];
 
+        const dayBreakPoints = parsedStatData.filter(item => /23:59/.test(item.formattedDate));
+        const lastDayBreakPoint = dayBreakPoints.pop();
+        const currentDayDiff = lastDayBreakPoint && lastData ? lastData.sellPriceAvg - lastDayBreakPoint.sellPriceAvg : 0;
+
         return {
+            currentDayDiff,
+            dayBreakPointDate: lastDayBreakPoint ? lastDayBreakPoint.formattedDate : null,
             id: caseData.id,
             itemName: caseData.item_steam_name,
             itemNameEn: caseData.item_steam_name_en,
@@ -52,15 +59,15 @@ router.post('/', async (request, response) => {
 });
 
 router.post('/update_price', async (request, response) => {
-    const { price, itemId } = request.body;
+    const { price, name } = request.body;
 
-    const selectedItems = await DynamicItems.get({ item_steam_id: itemId });
+    const selectedItems = await DynamicItems.get({ item_steam_name: name });
 
     if (!selectedItems.length) {
         return response.sendStatus(404);
     }
 
-    await DynamicItems.update({ item_steam_id: itemId }, {
+    await DynamicItems.update({ item_steam_name: name }, {
         my_auto_price: price || null,
     });
 

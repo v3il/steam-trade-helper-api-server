@@ -4,9 +4,18 @@ const ItemView = Vue.component('item-view', {
             <div class="item-view__header">
                 <div>
                     <a :href="itemLink" target="_blank">{{item.itemName}}</a>
+                    
+                    &bullet;
+                    
                     <span class="item-view__diff" :class="[
                         item.lastPeriodDiff > 0 ? 'item-view__diff--positive' : 'item-view__diff--negative',
-                    ]">({{item.lastPeriodDiff.toFixed(2)}})</span>
+                    ]">За час: {{item.lastPeriodDiff.toFixed(2)}}</span>
+                    
+                    &bullet;
+                    
+                    <span v-if="item.currentDayDiff !== null" class="item-view__diff" :class="[
+                        item.currentDayDiff > 0 ? 'item-view__diff--positive' : 'item-view__diff--negative',
+                    ]">За день: {{item.currentDayDiff.toFixed(2)}}</span>
                 </div>
                 
                 <a href="javascript://" @click.prevent="$emit('delete')" class="item-view__remove">Удалить</a>
@@ -62,23 +71,38 @@ const ItemView = Vue.component('item-view', {
                         xAxes: [{ gridLines: { color: '#454d55' }}],
                         yAxes: [{ gridLines: { color: '#454d55' }, ticks: { callback: label => label.toFixed(2) }}],
                     },
+                    annotation: {
+                        drawTime: 'afterDatasetsDraw',
+                        annotations: []
+                    },
                 },
             };
 
             if (this.item.myAutoPrice) {
-                options.options.annotation = {
-                    drawTime: 'afterDatasetsDraw',
-                    annotations: [
-                        {
-                            type: 'line',
-                            mode: 'horizontal',
-                            scaleID: 'y-axis-0',
-                            value: this.item.myAutoPrice,
-                            borderColor: 'red',
-                            borderWidth: 1,
-                        },
-                    ]
-                };
+                options.options.annotation.annotations.push({
+                    type: 'line',
+                    mode: 'horizontal',
+                    scaleID: 'y-axis-0',
+                    value: this.item.myAutoPrice,
+                    borderColor: 'red',
+                    borderWidth: 1,
+                    label: {
+                        enabled: true,
+                        content: this.item.myAutoPrice,
+                        yAdjust: -15,
+                    }
+                });
+            }
+
+            if (this.item.dayBreakPointDate) {
+                options.options.annotation.annotations.push({
+                    type: 'line',
+                    mode: 'vertical',
+                    scaleID: 'x-axis-0',
+                    value: this.item.dayBreakPointDate,
+                    borderColor: 'green',
+                    borderWidth: 1,
+                });
             }
 
             this.chartInstance = new Chart(ctx, options);
@@ -111,7 +135,11 @@ new Vue({
     computed: {
         sortedItems() {
             return this.items.sort((a, b) => {
-                return b.lastPeriodDiff - a.lastPeriodDiff;
+                if (a.currentDayDiff === null && b.currentDayDiff === null) { return 0; }
+                if (a.currentDayDiff === null) { return -1; }
+                if (b.currentDayDiff === null) { return 1; }
+
+                return b.currentDayDiff - a.currentDayDiff;
             });
         }
     },
