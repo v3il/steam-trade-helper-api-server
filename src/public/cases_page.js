@@ -27,7 +27,7 @@ const ItemView = Vue.component('item-view', {
                 <a href="javascript://" @click.prevent="$emit('delete')" class="item-view__remove">Удалить</a>
             </div>
             
-            <div class="item-view__chart-wrapper">
+            <div class="item-view__chart-wrapper" v-show="showGraphs">
                 <canvas class="js-chart"></canvas>
             </div>
         </div>
@@ -41,6 +41,7 @@ const ItemView = Vue.component('item-view', {
 
     props: {
         item: Object,
+        showGraphs: Boolean,
     },
 
     computed: {
@@ -132,7 +133,7 @@ const ItemView = Vue.component('item-view', {
 
 new Vue({
     el: '#app',
-    data: { items: [] },
+    data: { items: [], showGraphs: true, },
 
     components: {
         ItemView,
@@ -167,6 +168,8 @@ new Vue({
     },
 
     async created() {
+        this.showGraphs = !!localStorage.getItem('showGraphs');
+
         Chart.defaults.global.defaultColor = '#454d55';
         Chart.defaults.global.defaultFontColor = "#fff";
         Chart.defaults.global.elements.point.borderColor = '#fff';
@@ -174,7 +177,7 @@ new Vue({
 
         await this.loadItems();
 
-        const socket = io.connect('http://localhost:3000');
+        const socket = io.connect('http://194.32.79.212:8001');
 
         socket.on('itemUpdated', (data) => {
             console.log('Updated', data);
@@ -187,4 +190,10 @@ new Vue({
             }
         });
     },
+
+    watch: {
+        showGraphs(newValue) {
+            localStorage.setItem('showGraphs', newValue);
+        }
+    }
 });

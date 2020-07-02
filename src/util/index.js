@@ -1,5 +1,5 @@
-const formatNumber = require('./formatNumber');
+const prepareItemData = require('./prepareItemData');
 
 module.exports = {
-    formatNumber,
+    prepareItemData,
 }

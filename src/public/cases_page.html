@@ -9,7 +9,12 @@
 <body>
 
 <div id="app">
-    <item-view v-for="item in sortedItems" :key="item.id" :item="item" @delete="deleteItem(item)"></item-view>
+    <label>
+        <input type="checkbox" v-model="showGraphs">
+        Показывать графики
+    </label>
+
+    <item-view v-for="item in sortedItems" :key="item.id" :item="item" :show-graphs="showGraphs" @delete="deleteItem(item)"></item-view>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>

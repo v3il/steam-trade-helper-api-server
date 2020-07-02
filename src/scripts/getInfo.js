@@ -4,7 +4,7 @@ const { promisify } = require('util');
 const DynamicItems = require('../services/DynamicItems');
 const config = require('../config');
 const { getSocketInstance } = require('../socketInstance');
-const { formatNumber } = require('../util');
+const { prepareItemData } = require('../util');
 
 const promisifiedSetTimeout = promisify(setTimeout);
 
@@ -29,11 +29,6 @@ const getCurrentPeriodEnding = () => {
     return getTimestamp(now);
 };
 
-const timestampToFormattedDate = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return `${formatNumber(date.getDate())}.${formatNumber(date.getMonth() + 1)} ${formatNumber(date.getHours())}:${formatNumber(date.getMinutes())}`;
-}
-
 const dispatchUpdatedItemData = async (itemId) => {
     const selectedItems = await DynamicItems.get({ id: itemId });
 
@@ -42,41 +37,9 @@ const dispatchUpdatedItemData = async (itemId) => {
     }
 
     const [item] = selectedItems;
-    const periodsData = JSON.parse(item.stat_data);
+    const preparedData = prepareItemData(item);
 
-    const parsedStatData = periodsData.map((periodData, index) => {
-        const currentPeriodSellAvg = periodData.priceAccumulator / periodData.updatesCount;
-        const formattedDate = timestampToFormattedDate(periodData.end);
-
-        return {
-            formattedDate,
-            sellPriceAvg: currentPeriodSellAvg,
-        };
-    });
-
-    const lastData = parsedStatData[parsedStatData.length - 1];
-    const prevLastData = parsedStatData[parsedStatData.length - 2];
-
-    const dayBreakPoints = parsedStatData.filter(item => /23:59/.test(item.formattedDate));
-    const lastDayBreakPoint = dayBreakPoints.pop();
-    const currentDayDiff = lastDayBreakPoint && lastData ? lastData.sellPriceAvg - lastDayBreakPoint.sellPriceAvg : 0;
-
-    const myProfit = item.my_auto_price ? lastData.sellPriceAvg - item.my_auto_price / 0.87 : null;
-
-    const data = {
-        myProfit,
-        currentDayDiff,
-        dayBreakPointDate: lastDayBreakPoint ? lastDayBreakPoint.formattedDate : null,
-        id: item.id,
-        itemName: item.item_steam_name,
-        itemNameEn: item.item_steam_name_en,
-        itemId: item.item_steam_id,
-        periodsData: parsedStatData,
-        lastPeriodDiff: lastData && prevLastData ? lastData.sellPriceAvg - prevLastData.sellPriceAvg : 0,
-        myAutoPrice: item.my_auto_price,
-    };
-
-    getSocketInstance().sockets.emit('itemUpdated', data);
+    getSocketInstance().sockets.emit('itemUpdated', preparedData);
 };
 
 const updateItemData = async (itemData) => {
@@ -124,7 +87,7 @@ const updateItemData = async (itemData) => {
 
             parsedStat.push(statForCurrentHour);
 
-            if (parsedStat.length >= config.MAX_STAT_PERIOD) {
+            if (parsedStat.length >= config.MAX_STAT_ENTRIES) {
                 parsedStat.shift();
             }
         }
