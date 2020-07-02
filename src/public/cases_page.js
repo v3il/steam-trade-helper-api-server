@@ -168,7 +168,7 @@ new Vue({
     },
 
     async created() {
-        this.showGraphs = !!localStorage.getItem('showGraphs');
+        this.showGraphs = (localStorage.getItem('showGraphs') || 'true') === 'true';
 
         Chart.defaults.global.defaultColor = '#454d55';
         Chart.defaults.global.defaultFontColor = "#fff";
@@ -193,6 +193,7 @@ new Vue({
 
     watch: {
         showGraphs(newValue) {
+            console.log(newValue);
             localStorage.setItem('showGraphs', newValue);
         }
     }

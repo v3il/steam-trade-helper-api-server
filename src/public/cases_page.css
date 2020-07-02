@@ -2,9 +2,14 @@ body, html {
     background-color: #121212;
 }
 
-.item-view {
+.item-view, .menu {
     background-color: #343a40;
     padding: 12px;
+}
+
+.menu {
+    display: block;
+    color: white;
 }
 
 .item-view__diff {
@@ -20,7 +25,6 @@ body, html {
 }
 
 .item-view__header {
-    margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
 }
@@ -32,6 +36,7 @@ body, html {
 .item-view__chart-wrapper {
     height: 150px;
     position: relative;
+    margin-top: 12px;
 }
 
 a {
