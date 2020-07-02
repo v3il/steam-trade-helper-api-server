@@ -16,7 +16,6 @@ module.exports = {
 
     PASSWORD_SECRET: process.env.PASSWORD_SECRET || 'Some secret phrase',
 
-    MAX_STAT_PERIOD: 14,
-    AVG_PRICE_SELECTION_LENGTH: 20,
+    MAX_STAT_PERIOD: 7 * 24,
     UPDATE_INFO_DELAY: 5 * 1000,
 };

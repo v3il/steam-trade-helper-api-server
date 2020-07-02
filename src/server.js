@@ -7,6 +7,7 @@ const rootRouter = require('./routes');
 const errorsHandler = require('./routes/errorsHandler');
 const config = require('./config');
 const runInfoUpdater = require('./scripts/getInfo');
+const { initSocket } = require('./socketInstance');
 
 module.exports = async () => {
     const app = express();
@@ -20,7 +21,11 @@ module.exports = async () => {
 
     runInfoUpdater();
 
-    return app.listen(config.PORT, () => {
+    const server = app.listen(config.PORT, () => {
         console.log(`Server successfully started at ${config.PORT}.`);
     });
+
+    initSocket(server);
+
+    return server;
 };

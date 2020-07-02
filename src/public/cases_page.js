@@ -16,6 +16,12 @@ const ItemView = Vue.component('item-view', {
                     <span v-if="item.currentDayDiff !== null" class="item-view__diff" :class="[
                         item.currentDayDiff > 0 ? 'item-view__diff--positive' : 'item-view__diff--negative',
                     ]">За день: {{item.currentDayDiff.toFixed(2)}}</span>
+                    
+                    &bullet;
+                    
+                    <span v-if="item.myProfit !== null" class="item-view__diff" :class="[
+                        item.myProfit > 0 ? 'item-view__diff--positive' : 'item-view__diff--negative',
+                    ]">Прибыль (авто): {{item.myProfit.toFixed(2)}}</span>
                 </div>
                 
                 <a href="javascript://" @click.prevent="$emit('delete')" class="item-view__remove">Удалить</a>
@@ -160,17 +166,25 @@ new Vue({
         },
     },
 
-    created() {
+    async created() {
         Chart.defaults.global.defaultColor = '#454d55';
         Chart.defaults.global.defaultFontColor = "#fff";
         Chart.defaults.global.elements.point.borderColor = '#fff';
         Chart.defaults.global.elements.point.backgroundColor = '#fff';
 
-        this.loadItems();
+        await this.loadItems();
 
-        setInterval(() => {
-            console.error('Update items');
-            this.loadItems();
-        }, 30 * 1000);
+        const socket = io.connect('http://localhost:3000');
+
+        socket.on('itemUpdated', (data) => {
+            console.log('Updated', data);
+
+            const { id } = data;
+            const updatedItemIndex = this.items.findIndex(item => item.id === id);
+
+            if (updatedItemIndex >= 0) {
+                this.items.splice(updatedItemIndex, 1, data);
+            }
+        });
     },
 });

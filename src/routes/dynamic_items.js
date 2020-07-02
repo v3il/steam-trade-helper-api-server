@@ -33,7 +33,10 @@ router.get('/', async (request, response) => {
         const lastDayBreakPoint = dayBreakPoints.pop();
         const currentDayDiff = lastDayBreakPoint && lastData ? lastData.sellPriceAvg - lastDayBreakPoint.sellPriceAvg : 0;
 
+        const myProfit = caseData.my_auto_price ? lastData.sellPriceAvg - caseData.my_auto_price / 0.87 : null;
+
         return {
+            myProfit,
             currentDayDiff,
             dayBreakPointDate: lastDayBreakPoint ? lastDayBreakPoint.formattedDate : null,
             id: caseData.id,
