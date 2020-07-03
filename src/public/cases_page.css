@@ -12,6 +12,10 @@ body, html {
     color: white;
 }
 
+.item-view--danger {
+    background-color: #1f0000;
+}
+
 .item-view__diff {
     font-size: smaller;
 }

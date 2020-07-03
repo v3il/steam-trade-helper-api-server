@@ -1,6 +1,6 @@
 const ItemView = Vue.component('item-view', {
     template: `
-        <div class="item-view">
+        <div class="item-view" :class="{ 'item-view--danger': item.myProfit !== null && item.myProfit < 0 }">
             <div class="item-view__header">
                 <div>
                     <a :href="itemLink" target="_blank">{{item.itemName}}</a>
@@ -80,7 +80,22 @@ const ItemView = Vue.component('item-view', {
                     },
                     annotation: {
                         drawTime: 'afterDatasetsDraw',
-                        annotations: []
+                        annotations: [
+                            {
+                                type: 'line',
+                                mode: 'horizontal',
+                                scaleID: 'y-axis-0',
+                                value: data[data.length - 1],
+                                borderColor: 'lightgreen',
+                                borderWidth: 1,
+                                label: {
+                                    position: 'right',
+                                    enabled: true,
+                                    yAdjust: 15,
+                                    content: `${data[data.length - 1].toFixed(2)}`,
+                                }
+                            }
+                        ]
                     },
                 },
             };
@@ -124,6 +139,11 @@ const ItemView = Vue.component('item-view', {
 
                 this.chartInstance.data.datasets[0].data = data;
                 this.chartInstance.data.labels = labels;
+
+                const currentValueLine = this.chartInstance.options.annotation.annotations[0];
+
+                currentValueLine.value = data[data.length - 1];
+                currentValueLine.label.content = `${data[data.length - 1].toFixed(2)}`;
 
                 this.chartInstance.update();
             }
@@ -177,7 +197,8 @@ new Vue({
 
         await this.loadItems();
 
-        const socket = io.connect('http://194.32.79.212:8001');
+        // const socket = io.connect('http://194.32.79.212:8001');
+        const socket = io.connect('http://localhost:3000');
 
         socket.on('itemUpdated', (data) => {
             console.log('Updated', data);
