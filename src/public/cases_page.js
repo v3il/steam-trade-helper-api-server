@@ -153,7 +153,12 @@ const ItemView = Vue.component('item-view', {
 
 new Vue({
     el: '#app',
-    data: { items: [], showGraphs: true, },
+
+    data: {
+        items: [],
+        showGraphs: true,
+        apiUrl: window.isProduction ? 'http://194.32.79.212:8001' : 'http://localhost:3000',
+    },
 
     components: {
         ItemView,
@@ -185,6 +190,24 @@ new Vue({
                 });
             }
         },
+
+        pin(item) {
+            fetch(`/dynamic_items/pin`, {
+                method: 'post',
+                body: JSON.stringify({ id: item.id })
+            }).then(() => {
+                item.pinned = true;
+            });
+        },
+
+        unpin(item) {
+            fetch(`/dynamic_items/unpin`, {
+                method: 'post',
+                body: JSON.stringify({ id: item.id })
+            }).then(() => {
+                item.pinned = false;
+            });
+        }
     },
 
     async created() {
@@ -197,8 +220,7 @@ new Vue({
 
         await this.loadItems();
 
-        // const socket = io.connect('http://194.32.79.212:8001');
-        const socket = io.connect('http://localhost:3000');
+        const socket = io.connect(this.apiUrl);
 
         socket.on('itemUpdated', (data) => {
             console.log('Updated', data);

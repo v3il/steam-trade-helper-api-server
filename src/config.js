@@ -18,4 +18,6 @@ module.exports = {
 
     MAX_STAT_ENTRIES: 7 * 24,
     UPDATE_INFO_DELAY: 5 * 1000,
+
+    API_URL: NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://194.32.79.212:8001',
 };

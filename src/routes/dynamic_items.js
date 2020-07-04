@@ -21,6 +21,24 @@ router.post('/', async (request, response) => {
     response.sendStatus(200);
 });
 
+router.post('/pin', async (request, response) => {
+    const { id } = request.body;
+    await DynamicItems.update({ id }, {
+        pinned: 1,
+    });
+
+    response.sendStatus(200);
+});
+
+router.post('/unpin', async (request, response) => {
+    const { id } = request.body;
+    await DynamicItems.update({ id }, {
+        pinned: 0,
+    });
+
+    response.sendStatus(200);
+});
+
 router.post('/update_price', async (request, response) => {
     const { price, name } = request.body;
 

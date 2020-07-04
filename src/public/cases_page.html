@@ -17,6 +17,10 @@
     <item-view v-for="item in sortedItems" :key="item.id" :item="item" :show-graphs="showGraphs" @delete="deleteItem(item)"></item-view>
 </div>
 
+<script>
+    window.isProduction = false;
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.5/chartjs-plugin-annotation.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
