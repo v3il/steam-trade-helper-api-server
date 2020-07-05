@@ -20,7 +20,7 @@ body, html {
     font-size: smaller;
 }
 
-.item-view__diff--positive {
+.item-view__diff--positive, .item-view__pin {
     color: lightgreen;
 }
 

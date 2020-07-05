@@ -23,6 +23,11 @@ router.post('/', async (request, response) => {
 
 router.post('/pin', async (request, response) => {
     const { id } = request.body;
+
+    if (!id) {
+        return response.sendStatus(400);
+    }
+
     await DynamicItems.update({ id }, {
         pinned: 1,
     });
@@ -32,6 +37,11 @@ router.post('/pin', async (request, response) => {
 
 router.post('/unpin', async (request, response) => {
     const { id } = request.body;
+
+    if (!id) {
+        return response.sendStatus(400);
+    }
+
     await DynamicItems.update({ id }, {
         pinned: 0,
     });

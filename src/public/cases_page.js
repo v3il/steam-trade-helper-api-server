@@ -24,7 +24,14 @@ const ItemView = Vue.component('item-view', {
                     ]">Прибыль (авто): {{item.myProfit.toFixed(2)}}</span>
                 </div>
                 
-                <a href="javascript://" @click.prevent="$emit('delete')" class="item-view__remove">Удалить</a>
+                <div>
+                    <a href="javascript://" v-if="item.pinned" @click.prevent="$emit('unpin')" class="item-view__pin">Открепить</a>
+                    <a href="javascript://" v-else @click.prevent="$emit('pin')" class="item-view__pin">Закрепить</a>
+                    
+                    &bullet;
+                    
+                    <a href="javascript://" @click.prevent="$emit('delete')" class="item-view__remove">Удалить</a>
+                </div>
             </div>
             
             <div class="item-view__chart-wrapper" v-show="showGraphs">
@@ -167,6 +174,10 @@ new Vue({
     computed: {
         sortedItems() {
             return this.items.sort((a, b) => {
+                if (a.pinned && b.pinned) { return b.currentDayDiff - a.currentDayDiff; }
+                if (a.pinned && !b.pinned) { return -1; }
+                if (b.pinned && !a.pinned) { return 1; }
+
                 if (a.currentDayDiff === null && b.currentDayDiff === null) { return 0; }
                 if (a.currentDayDiff === null) { return -1; }
                 if (b.currentDayDiff === null) { return 1; }
@@ -194,7 +205,10 @@ new Vue({
         pin(item) {
             fetch(`/dynamic_items/pin`, {
                 method: 'post',
-                body: JSON.stringify({ id: item.id })
+                body: JSON.stringify({ id: item.id }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             }).then(() => {
                 item.pinned = true;
             });
@@ -203,7 +217,10 @@ new Vue({
         unpin(item) {
             fetch(`/dynamic_items/unpin`, {
                 method: 'post',
-                body: JSON.stringify({ id: item.id })
+                body: JSON.stringify({ id: item.id }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             }).then(() => {
                 item.pinned = false;
             });

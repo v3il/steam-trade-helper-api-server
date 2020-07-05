@@ -14,7 +14,15 @@
         Показывать графики
     </label>
 
-    <item-view v-for="item in sortedItems" :key="item.id" :item="item" :show-graphs="showGraphs" @delete="deleteItem(item)"></item-view>
+    <item-view
+        v-for="item in sortedItems"
+        :key="item.id"
+        :item="item"
+        :show-graphs="showGraphs"
+        @delete="deleteItem(item)"
+        @pin="pin(item)"
+        @unpin="unpin(item)"
+    ></item-view>
 </div>
 
 <script>
