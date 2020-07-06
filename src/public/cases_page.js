@@ -87,70 +87,105 @@ const ItemView = Vue.component('item-view', {
                     },
                     annotation: {
                         drawTime: 'afterDatasetsDraw',
-                        annotations: [
-                            {
-                                type: 'line',
-                                mode: 'horizontal',
-                                scaleID: 'y-axis-0',
-                                value: data[data.length - 1],
-                                borderColor: 'lightgreen',
-                                borderWidth: 1,
-                                label: {
-                                    position: 'right',
-                                    enabled: true,
-                                    yAdjust: 15,
-                                    content: `${data[data.length - 1].toFixed(2)}`,
-                                }
-                            }
-                        ]
+                        annotations: []
                     },
                 },
             };
 
-            if (this.item.myAutoPrice) {
-                options.options.annotation.annotations.push({
-                    type: 'line',
-                    mode: 'horizontal',
-                    scaleID: 'y-axis-0',
-                    value: this.item.myAutoPrice,
-                    borderColor: 'red',
-                    borderWidth: 1,
-                    label: {
-                        enabled: true,
-                        content: this.item.myAutoPrice,
-                        yAdjust: -15,
-                    }
-                });
-            }
-
-            if (this.item.dayBreakPointDate) {
-                options.options.annotation.annotations.push({
-                    type: 'line',
-                    mode: 'vertical',
-                    scaleID: 'x-axis-0',
-                    value: this.item.dayBreakPointDate,
-                    borderColor: 'green',
-                    borderWidth: 1,
-                });
-            }
-
             this.chartInstance = new Chart(ctx, options);
+
+            this.drawCurrentPriceLine(data);
+            this.drawMyAutoPriceLine(this.item.myAutoPrice);
+            this.drawDayStartLine(this.item.dayBreakPointDate);
+
+            this.chartInstance.update();
         });
+    },
+
+    methods: {
+        drawCurrentPriceLine(chartData) {
+            this.chartInstance.options.annotation.annotations = this.chartInstance.options.annotation.annotations
+                .filter(({ id }) => id !== 'currentValue');
+
+            this.chartInstance.update();
+
+            this.chartInstance.options.annotation.annotations.push({
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                id: 'currentValue',
+                value: chartData[chartData.length - 1],
+                borderColor: 'lightgreen',
+                borderWidth: 1,
+                label: {
+                    position: 'right',
+                    enabled: true,
+                    yAdjust: 15,
+                    content: `${chartData[chartData.length - 1].toFixed(2)}`,
+                }
+            });
+        },
+
+        drawMyAutoPriceLine(myAutoPrice) {
+            this.chartInstance.options.annotation.annotations = this.chartInstance.options.annotation.annotations
+                .filter(({ id }) => id !== 'myAutoPrice');
+
+            this.chartInstance.update();
+
+            if (!myAutoPrice) {
+                return;
+            }
+
+            this.chartInstance.options.annotation.annotations.push({
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                id: 'myAutoPrice',
+                value: myAutoPrice,
+                borderColor: 'red',
+                borderWidth: 1,
+                label: {
+                    enabled: true,
+                    content: myAutoPrice,
+                    yAdjust: -15,
+                }
+            });
+        },
+
+        drawDayStartLine(dayBreakPointDate) {
+            this.chartInstance.options.annotation.annotations = this.chartInstance.options.annotation.annotations
+                .filter(({ id }) => id !== 'dayStart');
+
+            this.chartInstance.update();
+
+            if (!dayBreakPointDate) {
+                return;
+            }
+
+            this.chartInstance.options.annotation.annotations.push({
+                type: 'line',
+                mode: 'vertical',
+                scaleID: 'x-axis-0',
+                id: 'dayStart',
+                value: dayBreakPointDate,
+                borderColor: 'green',
+                borderWidth: 1,
+            });
+        }
     },
 
     watch: {
         item: {
             handler(newItem) {
                 const data = newItem.periodsData.map(item => item.sellPriceAvg);
-                const labels = this.item.periodsData.map(item => item.formattedDate);
+                const labels = newItem.periodsData.map(item => item.formattedDate);
 
                 this.chartInstance.data.datasets[0].data = data;
                 this.chartInstance.data.labels = labels;
 
-                const currentValueLine = this.chartInstance.options.annotation.annotations[0];
-
-                currentValueLine.value = data[data.length - 1];
-                currentValueLine.label.content = `${data[data.length - 1].toFixed(2)}`;
+                this.drawCurrentPriceLine(data);
+                this.drawMyAutoPriceLine(newItem.myAutoPrice);
+                this.drawDayStartLine(newItem.dayBreakPointDate);
 
                 this.chartInstance.update();
             }

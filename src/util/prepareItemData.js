@@ -37,7 +37,7 @@ module.exports = (item) => {
         itemId: item.item_steam_id,
         periodsData: parsedStatData,
         lastPeriodDiff: lastData && prevLastData ? lastData.sellPriceAvg - prevLastData.sellPriceAvg : 0,
-        myAutoPrice: item.my_auto_price,
+        myAutoPrice: parseFloat(item.my_auto_price),
         pinned: item.pinned === 1,
     };
 };
