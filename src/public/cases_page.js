@@ -21,7 +21,7 @@ const ItemView = Vue.component('item-view', {
                     
                     <span v-if="item.myProfit !== null" class="item-view__diff" :class="[
                         item.myProfit > 0 ? 'item-view__diff--positive' : 'item-view__diff--negative',
-                    ]">Прибыль (авто): {{item.myProfit.toFixed(2)}}</span>
+                    ]">Прибыль: {{item.myProfit.toFixed(2)}}</span>
                 </div>
                 
                 <div>

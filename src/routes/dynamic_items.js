@@ -50,17 +50,16 @@ router.post('/unpin', async (request, response) => {
 });
 
 router.post('/update_price', async (request, response) => {
-    const { price, name } = request.body;
+    const { items } = request.body;
+    const savedItems = await DynamicItems.getAll();
 
-    const selectedItems = await DynamicItems.get({ item_steam_name: name });
+    for (const savedItem of savedItems) {
+        const itemData = items.find(item => item.name === savedItem.item_steam_name);
 
-    if (!selectedItems.length) {
-        return response.sendStatus(404);
+        await DynamicItems.update({ id: savedItem.id }, {
+            my_auto_price: itemData ? itemData.price : null,
+        });
     }
-
-    await DynamicItems.update({ item_steam_name: name }, {
-        my_auto_price: price || null,
-    });
 
     response.sendStatus(200);
 });
